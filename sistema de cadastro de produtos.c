@@ -3,10 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Apenas pra rodar no VS Code*/
 #pragma comment(lib, "user32.lib")
 
-/* Estrutura do produto */
 typedef struct {
     int codigo;
     char nome[100];
@@ -14,25 +12,21 @@ typedef struct {
     float preco;
 } Produto;
 
-/* Identificadores dos campos */
 #define ID_CODIGO     101
 #define ID_NOME       102
 #define ID_QUANTIDADE 103
 #define ID_PRECO      104
 
-/* Identificadores dos botoes */
 #define ID_CADASTRAR  201
 #define ID_LIMPAR     202
 #define ID_LISTAR     203
 #define ID_SAIR       204
 
-/* Campos da interface */
 HWND campoCodigo;
 HWND campoNome;
 HWND campoQuantidade;
 HWND campoPreco;
 
-/* FUNCAO PARA LIMPAR OS CAMPOS */
 void limparCampos() {
     SetWindowText(campoCodigo, "");
     SetWindowText(campoNome, "");
@@ -41,14 +35,12 @@ void limparCampos() {
     SetFocus(campoCodigo);
 }
 
-/* FUNCAO PARA CADASTRAR PRODUTO */
 void cadastrarProduto(HWND janela) {
     Produto p;
     char textoCodigo[20];
     char textoQuantidade[20];
     char textoPreco[30];
 
-    /* Pegando os dados digitados */
     GetWindowText(campoCodigo, textoCodigo,
         sizeof(textoCodigo));
     GetWindowText(campoNome, p.nome, sizeof(p.nome));
@@ -57,7 +49,6 @@ void cadastrarProduto(HWND janela) {
     GetWindowText(campoPreco, textoPreco,
         sizeof(textoPreco));
 
-    /* Verificando campos vazios */
     if (strlen(textoCodigo) == 0 ||
         strlen(p.nome) == 0 ||
         strlen(textoQuantidade) == 0 ||
@@ -67,12 +58,10 @@ void cadastrarProduto(HWND janela) {
         return;
     }
 
-    /* Convertendo texto para numero */
     p.codigo = atoi(textoCodigo);
     p.quantidade = atoi(textoQuantidade);
     p.preco = atof(textoPreco);
 
-    /* Abrindo arquivo */
     FILE *arquivo;
     arquivo = fopen("produto_interface.txt", "a");
     if (arquivo == NULL) {
@@ -81,7 +70,6 @@ void cadastrarProduto(HWND janela) {
         return;
     }
 
-    /* Gravando no arquivo */
     fprintf(arquivo, "%d;%s;%d;%.2f\n", p.codigo, p.nome,
         p.quantidade, p.preco);
     fclose(arquivo);
@@ -90,7 +78,6 @@ void cadastrarProduto(HWND janela) {
     limparCampos();
 }
 
-/* FUNCAO PARA LISTAR PRODUTOS */
 void listarProdutos(HWND janela) {
     FILE *arquivo;
     Produto p;
@@ -121,30 +108,25 @@ void listarProdutos(HWND janela) {
         MB_OK | MB_ICONINFORMATION);
 }
 
-/* FUNCAO QUE CONTROLA A JANELA */
 LRESULT CALLBACK WindowProcedure(HWND janela, UINT
 mensagem, WPARAM wParam, LPARAM lParam) {
     switch (mensagem) {
         case WM_CREATE:
-            /* TITULO */
             CreateWindow("STATIC", "SISTEMA DE CADASTRO DE PRODUTOS",
                 WS_VISIBLE | WS_CHILD, 75, 20, 300, 30,
                 janela, NULL, NULL, NULL);
-            /* CODIGO */
             CreateWindow("STATIC", "Codigo:", WS_VISIBLE |
                 WS_CHILD, 30, 70, 100, 25, janela, NULL, NULL, NULL);
             campoCodigo = CreateWindow("EDIT", "",
                 WS_VISIBLE | WS_CHILD | WS_BORDER | ES_NUMBER,
                 140, 70, 220, 25, janela, (HMENU) ID_CODIGO, NULL,
                 NULL);
-            /* NOME */
             CreateWindow("STATIC", "Nome:", WS_VISIBLE |
                 WS_CHILD, 30, 110, 100, 25, janela, NULL, NULL, NULL);
             campoNome = CreateWindow("EDIT", "",
                 WS_VISIBLE | WS_CHILD | WS_BORDER, 140, 110, 220, 25,
                 janela, (HMENU) ID_NOME, NULL, NULL);
 
-            /* QUANTIDADE */
             CreateWindow("STATIC", "Quantidade:",
                 WS_VISIBLE | WS_CHILD, 30, 150, 100, 25, janela, NULL,
                 NULL, NULL);
@@ -152,13 +134,11 @@ mensagem, WPARAM wParam, LPARAM lParam) {
                 WS_VISIBLE | WS_CHILD | WS_BORDER | ES_NUMBER,
                 140, 150, 220, 25, janela, (HMENU) ID_QUANTIDADE,
                 NULL, NULL);
-            /* PRECO */
             CreateWindow("STATIC", "Preco:", WS_VISIBLE |
                 WS_CHILD, 30, 190, 100, 25, janela, NULL, NULL, NULL);
             campoPreco = CreateWindow("EDIT", "",
                 WS_VISIBLE | WS_CHILD | WS_BORDER, 140, 190, 220, 25,
                 janela, (HMENU) ID_PRECO, NULL, NULL);
-            /* BOTOES */
             CreateWindow("BUTTON", "Cadastrar", WS_VISIBLE
                 | WS_CHILD | BS_PUSHBUTTON, 30, 250, 100, 35, janela,
                 (HMENU) ID_CADASTRAR, NULL, NULL);
@@ -173,7 +153,6 @@ mensagem, WPARAM wParam, LPARAM lParam) {
                 (HMENU) ID_SAIR, NULL, NULL);
             break;
 
-        /* EVENTOS DOS BOTOES */
         case WM_COMMAND:
             switch (LOWORD(wParam)) {
                 case ID_CADASTRAR:
@@ -191,7 +170,6 @@ mensagem, WPARAM wParam, LPARAM lParam) {
             }
             break;
 
-        /* FECHAR JANELA */
         case WM_DESTROY:
             PostQuitMessage(0);
             break;
@@ -203,26 +181,22 @@ mensagem, WPARAM wParam, LPARAM lParam) {
     return 0;
 }
 
-/* FUNCAO PRINCIPAL */
 int WINAPI WinMain(HINSTANCE hInstancia, HINSTANCE
 hInstanciaAnterior, LPSTR argumentos, int exibirJanela) {
     WNDCLASS wc = {0};
 
-    /* Configurando a janela */
     wc.lpfnWndProc = WindowProcedure;
     wc.hInstance = hInstancia;
     wc.lpszClassName = "JanelaCadastroProdutos";
     wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 
-    /* Registrando a janela */
     if (!RegisterClass(&wc)) {
         MessageBox(NULL, "Erro ao registrar a janela.",
             "Erro", MB_OK);
         return 0;
     }
 
-    /* Criando a janela principal */
     HWND janela = CreateWindow(
         "JanelaCadastroProdutos",
         "Cadastro de Produtos",
@@ -238,11 +212,9 @@ hInstanciaAnterior, LPSTR argumentos, int exibirJanela) {
         return 0;
     }
 
-    /* Exibindo a janela */
     ShowWindow(janela, exibirJanela);
     UpdateWindow(janela);
 
-    /* Loop principal */
     MSG mensagem;
     while (GetMessage(&mensagem, NULL, 0, 0)) {
         TranslateMessage(&mensagem);
